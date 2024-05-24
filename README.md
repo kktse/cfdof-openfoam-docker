@@ -6,8 +6,8 @@ pulls the latest Foundation and OpenCFD/ESI versions of OpenFOAM from Docker
 Hub, configures the environment for compatibility with CfdOF, and installs `gmsh`,
 `cfmesh` and `hisa`.
 
-At the time of writing, CfdOF 1.25.13 supports OpenFOAM Foundations versions 9
-through 10, and OpenCFD/ESI v2006 to v2306.
+At the time of writing, CfdOF 1.25.13 supports OpenFOAM Foundation 9 to 10, and
+OpenCFD/ESI v2006 to v2306.
 
 ## Building manually
 
@@ -19,7 +19,7 @@ $ DOCKER_BUILDKIT=1 docker build --build-arg="TARGET=foundation" -f dockerfile .
 $ docker build --build-arg="TARGET=foundation" -f dockerfile .
 ```
 
-You can pick between `foundation` and `opencfd` builds of OpenFOAM. These correspond to the following images and versions:
+You can configure the build with the `TARGET` argument. The `TARGET` argument can be set to `foundation` and `opencfd`. These correspond to the following images and versions of OpenFOAM:
 
 - foundation: [`openfoam/openfoam10-paraview56:10`](https://hub.docker.com/r/openfoam/openfoam10-paraview510)
 - opencfd: [`opencfd/openfoam-default:2306`](https://hub.docker.com/r/opencfd/openfoam-default)
@@ -32,4 +32,5 @@ clicking "Run dependency checker".
 
 ## Reverting to the default CfdOF Docker image
 
-The default image URL is [`docker.io/mmcker/cfdof-openfoam`](https://hub.docker.com/r/mmcker/cfdof-openfoam).
+The default image URL used by CfdOF is
+[`docker.io/mmcker/cfdof-openfoam`](https://hub.docker.com/r/mmcker/cfdof-openfoam).

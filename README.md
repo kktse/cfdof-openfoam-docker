@@ -19,7 +19,7 @@ $ DOCKER_BUILDKIT=1 docker build --build-arg="TARGET=foundation" -f dockerfile .
 $ docker build --build-arg="TARGET=foundation" -f dockerfile .
 ```
 
-You can pick between `foundation` and `opencfd` builds of OpenFOAM. These correspond to the following images and versions:
+You can configure the build with the `TARGET` argument. The `TARGET` argument can be set to `foundation` and `opencfd`. These correspond to the following images and versions:
 
 - foundation: [`openfoam/openfoam10-paraview56:10`](https://hub.docker.com/r/openfoam/openfoam10-paraview510)
 - opencfd: [`opencfd/openfoam-default:2306`](https://hub.docker.com/r/opencfd/openfoam-default)

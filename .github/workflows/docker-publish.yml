@@ -6,12 +6,8 @@ name: Docker
 # documentation.
 
 on:
-  schedule:
-    - cron: '42 17 * * *'
   push:
     branches: [ "main" ]
-    # Publish semver tags as releases.
-    tags: [ 'v*.*.*' ]
   pull_request:
     branches: [ "main" ]
 
@@ -19,11 +15,14 @@ env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: kktse/cfdof-openfoam
 
 
 jobs:
   build:
+    strategy:
+      matrix:
+        distribution: ["foundation", "opencfd"]
 
     runs-on: ubuntu-latest
     permissions:
@@ -76,8 +75,9 @@ jobs:
         uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
         with:
           context: .
+          build-args: "TARGET=${{ matrix.distribution }}"
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ matrix.distribution }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -95,4 +95,4 @@ jobs:
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
         # This step uses the identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
-        run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+        run: echo "${{ matrix.distribution }}" | xargs -I {} cosign sign --yes {}@${DIGEST}

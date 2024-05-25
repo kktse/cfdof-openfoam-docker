@@ -19,3 +19,4 @@ export FOAM_USER_APPBIN=/usr/local/bin
 export FOAM_USER_LIBBIN=/usr/local/lib
 export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 export PATH=/usr/local/bin:$PATH
+export OMPI_MCA_rmaps_base_oversubscribe=true

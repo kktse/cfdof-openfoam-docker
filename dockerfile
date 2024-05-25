@@ -43,4 +43,5 @@ RUN source /etc/bashrc && \
     ./Allwmake
 RUN rm -r /home/openfoam/hisa-master
 
+WORKDIR /home/openfoam
 USER ${USER}

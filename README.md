@@ -72,12 +72,20 @@ toggle **Use docker** to true, and specify the **"Download from URL"** path as
 
 ## Installation sources
 
-Foundation images are based on [`openfoam/openfoam10-paraview56:10`](https://hub.docker.com/r/openfoam/openfoam10-paraview510). `gmsh` is installed from the Ubuntu Focal 20.04 LTS repositories, which at the time of writing is version [4.4.1](https://packages.ubuntu.com/focal/gmsh)
+Foundation images are based on
+[`openfoam/openfoam10-paraview56:10`](https://hub.docker.com/r/openfoam/openfoam10-paraview510).
+`gmsh` is installed from the Ubuntu Focal 20.04 LTS repositories, which at the
+time of writing is version [4.4.1](https://packages.ubuntu.com/focal/gmsh)
 
-OpenCFD/ESI images are based on [`opencfd/openfoam-default:2306`](https://hub.docker.com/r/opencfd/openfoam-default). `gmsh` is installed from the Ubuntu Jammy 22.04 LTS repositories, which at the time of writing is version [4.8.4](https://packages.ubuntu.com/jammy/gmsh)
+OpenCFD/ESI images are based on
+[`opencfd/openfoam-default:2306`](https://hub.docker.com/r/opencfd/openfoam-default).
+`gmsh` is installed from the Ubuntu Jammy 22.04 LTS repositories, which at the
+time of writing is version [4.8.4](https://packages.ubuntu.com/jammy/gmsh)
 
-`cfmesh` is compiled from source from [cfMesh-CfdOF](https://sourceforge.net/projects/cfmesh-cfdof/).
+`cfmesh` is compiled from source from
+[cfMesh-CfdOF](https://sourceforge.net/projects/cfmesh-cfdof/).
 
-`hisa` is compiled from source from [HiSA](https://sourceforge.net/projects/hisa).
+`hisa` is compiled from source from
+[HiSA](https://sourceforge.net/projects/hisa).
 
 [cfdof-docker-instructions]: https://github.com/jaheyns/CfdOF?tab=readme-ov-file#docker-container-install

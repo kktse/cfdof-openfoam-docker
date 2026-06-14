@@ -11,7 +11,7 @@ OpenCFD/ESI v2006 to v2306.
 ## Using pre-built images
 
 Images are built against `dockerfile` and uploaded to GitHub Container Registry
-(GHCR). Two image tags are provided.
+(GHCR). The latest image tags are provided.
 
 - OpenFOAM Foundation 10 - `ghcr.io/kktse/cfdof-openfoam:foundation`
 - OpenCFD/ESI v2306 - `ghcr.io/kktse/cfdof-openfoam:opencfd`
@@ -37,20 +37,32 @@ instructions](cfdof-docker-instructions).
 
 ## Building locally
 
-To build the image manually, run the following command.
+To build an image manually, pass the same base image and runtime user configured
+in the GitHub Actions build matrix.
 
 ```bash
-$ DOCKER_BUILDKIT=1 docker build --build-arg="TARGET=foundation" -f dockerfile .
+$ DOCKER_BUILDKIT=1 docker build \
+    --build-arg="BASE_IMAGE=openfoam/openfoam10-paraview56:10" \
+    --build-arg="RUNTIME_USER=openfoam" \
+    -f dockerfile .
 # or
-$ docker build --build-arg="TARGET=foundation" -f dockerfile .
+$ DOCKER_BUILDKIT=1 docker build \
+    --build-arg="BASE_IMAGE=opencfd/openfoam-default:2306" \
+    --build-arg="RUNTIME_USER=root" \
+    -f dockerfile .
 ```
 
-The OpenFOAM distribution can be selected with the `TARGET` argument. Two
-options are available: `foundation` and `opencfd`. These correspond to the
-following base images:
+The OpenFOAM versions built by GitHub Actions are defined in the
+`matrix.include` entries in `.github/workflows/docker-publish.yml`. The current
+base images are:
 
 - foundation: [`openfoam/openfoam10-paraview56:10`](https://hub.docker.com/r/openfoam/openfoam10-paraview510)
 - opencfd: [`opencfd/openfoam-default:2306`](https://hub.docker.com/r/opencfd/openfoam-default)
+
+Maintainers can also use the manual GitHub Actions workflow trigger to build a
+one-off Foundation or OpenCFD image by supplying the desired version, base image
+and runtime user. Manual builds always publish the versioned tag and can
+optionally move the edition alias tag.
 
 In FreeCAD, navigate to the CfdOF preferences page by navigating to Edit >
 Preferences > CfdOf. In the Software dependencies > Docker Container section,

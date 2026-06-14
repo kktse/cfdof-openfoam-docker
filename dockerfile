@@ -1,12 +1,8 @@
-ARG TARGET="foundation"
+ARG BASE_IMAGE=scratch
+FROM ${BASE_IMAGE} AS build
 
-FROM opencfd/openfoam-default:2306 as opencfd
-ENV USER="root"
-
-FROM openfoam/openfoam10-paraview56:10 as foundation
-ENV USER="openfoam"
-
-FROM ${TARGET} as build
+ARG RUNTIME_USER="openfoam"
+ENV USER="${RUNTIME_USER}"
 
 SHELL ["/bin/bash", "-c"]
 
@@ -44,4 +40,4 @@ RUN source /etc/bashrc && \
 RUN rm -r /home/openfoam/hisa-master
 
 WORKDIR /home/openfoam
-USER ${USER}
+USER ${RUNTIME_USER}

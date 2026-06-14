@@ -1,22 +1,24 @@
 # Unofficial OpenFOAM Docker Images for CfdOF
 
 Unofficial OpenFOAM Docker Images for CfdOF. This lets you to run newer
-versions of OpenFOAM with CfdOF via Docker. The dockerfile pulls the latest
-Foundation and OpenCFD/ESI versions of OpenFOAM from Docker Hub, installs
-`gmsh`, `cfmesh` and `hisa`, and configures a bashrc script to work with CfdOF.
+versions of OpenFOAM with CfdOF via Docker. The Dockerfiles pull Foundation and
+OpenCFD/ESI versions of OpenFOAM from Docker Hub, install `gmsh`, `cfmesh` and
+`hisa`, and configure a bashrc script to work with CfdOF.
 
-At the time of writing, CfdOF 1.25.13 supports OpenFOAM Foundation 9 to 10, and
-OpenCFD/ESI v2006 to v2306.
+At the time of writing, CfdOF 1.37.3 supports OpenFOAM Foundation 9 to 13, and
+OpenCFD/ESI v2206 to v2512.
 
 ## Using pre-built images
 
-Images are built against `dockerfile` and uploaded to GitHub Container Registry
-(GHCR). The latest image tags are provided.
+Images are built against `dockerfile.foundation` and `dockerfile.opencfd` and
+uploaded to GitHub Container Registry
+(GHCR). The edition tags track the latest image configured for that OpenFOAM
+edition.
 
-- OpenFOAM Foundation 10 - `ghcr.io/kktse/cfdof-openfoam:foundation`
-- OpenCFD/ESI v2306 - `ghcr.io/kktse/cfdof-openfoam:opencfd`
+- OpenFOAM Foundation - `ghcr.io/kktse/cfdof-openfoam:foundation`
+- OpenCFD/ESI - `ghcr.io/kktse/cfdof-openfoam:opencfd`
 
-To use the pre-built images with CfdOF pull the desired image from GHCR.
+To use the pre-built images with CfdOF pull the latest image from GHCR.
 
 ```bash
 $ docker pull ghcr.io/kktse/cfdof-openfoam:foundation
@@ -30,34 +32,37 @@ FreeCAD and CfdOF, as it may not download all the necessary image layers.
 In FreeCAD, navigate to the CfdOF preferences page by navigating to Edit >
 Preferences > CfdOf. In the Software dependencies > Docker Container section,
 toggle **Use docker** to true, and specify the **"Download from URL"** path to
-the desired image name. For example, to use the OpenFOAM Foundation 10 image,
+the desired image name. For example, to use the OpenFOAM Foundation image,
 set the "Download from URL" field to `ghcr.io/kktse/cfdof-openfoam:foundation`.
 Proceed as usual to install the Docker container runtime per the [CfdOF
 instructions](cfdof-docker-instructions).
 
 ## Building locally
 
-To build an image manually, pass the same base image and runtime user configured
-in the GitHub Actions build matrix.
+To build an image manually, use the Dockerfile for the OpenFOAM edition you
+want to build.
 
 ```bash
 $ DOCKER_BUILDKIT=1 docker build \
-    --build-arg="BASE_IMAGE=openfoam/openfoam10-paraview56:10" \
-    --build-arg="RUNTIME_USER=openfoam" \
-    -f dockerfile .
+    --build-arg="BASE_IMAGE=openfoam/openfoam11-paraview510:11" \
+    -f dockerfile.foundation .
 # or
 $ DOCKER_BUILDKIT=1 docker build \
-    --build-arg="BASE_IMAGE=opencfd/openfoam-default:2306" \
-    --build-arg="RUNTIME_USER=root" \
-    -f dockerfile .
+    --build-arg="BASE_IMAGE=opencfd/openfoam-dev:2512" \
+    -f dockerfile.opencfd .
 ```
 
 The OpenFOAM versions built by GitHub Actions are defined in the
 `matrix.include` entries in `.github/workflows/docker-publish.yml`. The current
 base images are:
 
-- foundation: [`openfoam/openfoam10-paraview56:10`](https://hub.docker.com/r/openfoam/openfoam10-paraview510)
-- opencfd: [`opencfd/openfoam-default:2306`](https://hub.docker.com/r/opencfd/openfoam-default)
+Foundation builds compile `cfmesh-cfdof` from source. OpenCFD builds use the
+`cartesianMesh` provided by the OpenCFD base image and install a small
+`cartesianMesh -version` compatibility shim for CfdOF.
+
+For Foundation images, set the CfdOF mesh object's number of meshing processes
+to `1`. The parallel cfMesh path can fail during reconstruction with
+`Non-empty processor patch "processor0to1" found in reconstructed mesh`.
 
 Maintainers can also use the manual GitHub Actions workflow trigger to build a
 one-off Foundation or OpenCFD image by supplying the desired version, base image
@@ -84,18 +89,14 @@ toggle **Use docker** to true, and specify the **"Download from URL"** path as
 
 ## Installation sources
 
-Foundation images are based on
-[`openfoam/openfoam10-paraview56:10`](https://hub.docker.com/r/openfoam/openfoam10-paraview510).
-`gmsh` is installed from the Ubuntu Focal 20.04 LTS repositories, which at the
-time of writing is version [4.4.1](https://packages.ubuntu.com/focal/gmsh)
+Foundation and OpenCFD/ESI images are based on the `BASE_IMAGE` selected in
+`.github/workflows/docker-publish.yml` or supplied to the manual workflow.
+`gmsh` is installed from the selected base image's apt repositories.
 
-OpenCFD/ESI images are based on
-[`opencfd/openfoam-default:2306`](https://hub.docker.com/r/opencfd/openfoam-default).
-`gmsh` is installed from the Ubuntu Jammy 22.04 LTS repositories, which at the
-time of writing is version [4.8.4](https://packages.ubuntu.com/jammy/gmsh)
-
-`cfmesh` is compiled from source from
-[cfMesh-CfdOF](https://sourceforge.net/projects/cfmesh-cfdof/).
+For Foundation images, `cfmesh` is compiled from source from
+[cfMesh-CfdOF](https://sourceforge.net/projects/cfmesh-cfdof/). For OpenCFD/ESI
+images, the version of `cartesianMesh` packaged in the base image is used with a
+CfdOF-compatible `-version` shim.
 
 `hisa` is compiled from source from
 [HiSA](https://sourceforge.net/projects/hisa).

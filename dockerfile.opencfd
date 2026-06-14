@@ -1,0 +1,50 @@
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE} AS build
+
+ENV USER="root"
+
+SHELL ["/bin/bash", "-c"]
+
+# Install required packages
+USER root
+RUN apt-get update && \
+    apt-get install -y build-essential ca-certificates python3-pip python-is-python3 unzip wget gmsh && \
+    rm -rf /var/lib/apt/lists/*
+
+# Setup bashrc
+COPY bashrc /etc/bashrc
+
+# Use OpenCFD's version-matched cfMesh, but provide a compatible -version flag
+# for CfdOF's dependency check using the real OpenFOAM version.
+WORKDIR /home/openfoam
+RUN source /etc/bashrc && \
+    real_cartesian_mesh="$(command -v cartesianMesh)" && \
+    test "${real_cartesian_mesh}" != /usr/local/bin/cartesianMesh && \
+    printf '%s\n' \
+    '#!/bin/bash' \
+    'if [[ "${1:-}" == "-version" ]]; then' \
+    '    version="${WM_PROJECT_VERSION#v}"' \
+    '    if [[ "${version}" =~ ^[0-9]+$ ]]; then' \
+    '        version="${version}.0"' \
+    '    fi' \
+    '    echo "OpenCFD bundled cfMesh ${version}"' \
+    '    exit 0' \
+    'fi' \
+    "exec \"${real_cartesian_mesh}\" \"\$@\"" \
+    > /usr/local/bin/cartesianMesh && \
+    chmod 755 /usr/local/bin/cartesianMesh
+RUN source /etc/bashrc && command -v cartesianMesh && cartesianMesh -version
+
+# Install HiSA
+WORKDIR /home/openfoam
+RUN wget https://sourceforge.net/projects/hisa/files/hisa-master.zip/download -O hisa-master.zip && \
+    unzip hisa-master.zip && \
+    rm hisa-master.zip
+WORKDIR /home/openfoam/hisa-master
+RUN find . -type f -name Allwmake -exec sed -i 's/wmake/wmake -j/g' {} +;
+RUN source /etc/bashrc && \
+    ./Allwmake
+RUN rm -r /home/openfoam/hisa-master
+
+WORKDIR /home/openfoam
+USER root

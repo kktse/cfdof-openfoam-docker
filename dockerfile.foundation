@@ -1,32 +1,32 @@
-ARG BASE_IMAGE=scratch
+ARG BASE_IMAGE
 FROM ${BASE_IMAGE} AS build
 
-ARG RUNTIME_USER="openfoam"
-ENV USER="${RUNTIME_USER}"
+ENV USER="openfoam"
 
 SHELL ["/bin/bash", "-c"]
 
 # Install required packages
 USER root
 RUN apt-get update && \
-    apt-get install -y build-essential python3-pip python-is-python3 unzip gmsh
+    apt-get install -y build-essential ca-certificates python3-pip python-is-python3 unzip wget gmsh && \
+    rm -rf /var/lib/apt/lists/*
 
 # Setup bashrc
 COPY bashrc /etc/bashrc
 
-# Install gmsh
-WORKDIR /home/openfoam
-
-# Install gmsh
+# Install CfdOF's cfMesh fork for Foundation images.
 WORKDIR /home/openfoam
 RUN wget https://sourceforge.net/projects/cfmesh-cfdof/files/cfmesh-cfdof.zip/download -O cfmesh-cfdof.zip && \
     unzip cfmesh-cfdof.zip && \
-    rm cfmesh-cfdof.zip
-WORKDIR /home/openfoam/cfmesh-cfdof
-RUN find . -type f -name Allwmake -exec sed -i 's/wmake/wmake -j/g' {} +;
-RUN source /etc/bashrc && \
-    ./Allwmake
-RUN rm -r /home/openfoam/cfmesh-cfdof 
+    rm cfmesh-cfdof.zip && \
+    cd cfmesh-cfdof && \
+    find . -type f -name Allwmake -exec sed -i 's/wmake/wmake -j/g' {} + && \
+    source /etc/bashrc && \
+    ./Allwmake && \
+    cd /home/openfoam && \
+    rm -r cfmesh-cfdof
+RUN source /etc/bashrc && command -v cartesianMesh && cartesianMesh -version
+
 
 # Install HiSA
 WORKDIR /home/openfoam
@@ -40,4 +40,4 @@ RUN source /etc/bashrc && \
 RUN rm -r /home/openfoam/hisa-master
 
 WORKDIR /home/openfoam
-USER ${RUNTIME_USER}
+USER openfoam

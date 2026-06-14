@@ -6,7 +6,7 @@ OpenCFD/ESI versions of OpenFOAM from Docker Hub, install `gmsh`, `cfmesh` and
 `hisa`, and configure a bashrc script to work with CfdOF.
 
 At the time of writing, CfdOF 1.37.3 supports OpenFOAM Foundation 9 to 13, and
-OpenCFD/ESI v2206 to v2512.
+OpenCFD/ESI v2006 to v2512.
 
 ## Using pre-built images
 

@@ -27,14 +27,14 @@ on:
         description: Upstream OpenFOAM Docker image reference
         required: true
         type: string
-      runtime_user:
-        description: Final container user
+      dockerfile:
+        description: Edition-specific Dockerfile to build
         required: true
-        default: openfoam
+        default: dockerfile.opencfd
         type: choice
         options:
-          - openfoam
-          - root
+          - dockerfile.foundation
+          - dockerfile.opencfd
       update_alias:
         description: Also update the moving edition alias tag
         required: true
@@ -55,13 +55,13 @@ jobs:
         include:
           - distribution: foundation
             version: "11"
+            dockerfile: dockerfile.foundation
             base_image: openfoam/openfoam11-paraview510:11
-            runtime_user: openfoam
             latest: true
           - distribution: opencfd
             version: "2512"
+            dockerfile: dockerfile.opencfd
             base_image: opencfd/openfoam-dev:2512
-            runtime_user: root
             latest: true
 
     runs-on: ubuntu-latest
@@ -116,9 +116,9 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: ${{ matrix.dockerfile }}
           build-args: |
             BASE_IMAGE=${{ matrix.base_image }}
-            RUNTIME_USER=${{ matrix.runtime_user }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -185,9 +185,9 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: ${{ inputs.dockerfile }}
           build-args: |
             BASE_IMAGE=${{ inputs.base_image }}
-            RUNTIME_USER=${{ inputs.runtime_user }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

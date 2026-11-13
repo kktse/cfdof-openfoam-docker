@@ -57,11 +57,13 @@ jobs:
             version: "11"
             dockerfile: dockerfile.foundation
             base_image: openfoam/openfoam11-paraview510:11
+            platforms: linux/amd64
             latest: true
           - distribution: opencfd
             version: "2512"
             dockerfile: dockerfile.opencfd
             base_image: opencfd/openfoam-dev:2512
+            platforms: linux/amd64,linux/arm64
             latest: true
 
     runs-on: ubuntu-latest
@@ -81,6 +83,10 @@ jobs:
       - name: Install cosign
         if: github.event_name != 'pull_request'
         uses: sigstore/cosign-installer@v3
+
+      - name: Set up QEMU
+        if: matrix.distribution == 'opencfd'
+        uses: docker/setup-qemu-action@v3
 
       # Set up BuildKit Docker container builder to be able to build
       # multi-platform images and export cache
@@ -117,6 +123,7 @@ jobs:
         with:
           context: .
           file: ${{ matrix.dockerfile }}
+          platforms: ${{ matrix.platforms }}
           build-args: |
             BASE_IMAGE=${{ matrix.base_image }}
           push: ${{ github.event_name != 'pull_request' }}
@@ -153,6 +160,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Validate edition and Dockerfile
+        env:
+          DISTRIBUTION: ${{ inputs.distribution }}
+          DOCKERFILE: ${{ inputs.dockerfile }}
+        run: |
+          if [[ "$DOCKERFILE" != "dockerfile.$DISTRIBUTION" ]]; then
+            echo "::error::Dockerfile must match the selected edition"
+            exit 1
+          fi
+
+      - name: Set up QEMU
+        if: inputs.distribution == 'opencfd'
+        uses: docker/setup-qemu-action@v3
+
       # https://github.com/sigstore/cosign-installer
       - name: Install cosign
         uses: sigstore/cosign-installer@v3
@@ -186,6 +207,7 @@ jobs:
         with:
           context: .
           file: ${{ inputs.dockerfile }}
+          platforms: ${{ inputs.distribution == 'opencfd' && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
           build-args: |
             BASE_IMAGE=${{ inputs.base_image }}
           push: true

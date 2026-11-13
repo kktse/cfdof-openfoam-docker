@@ -18,6 +18,9 @@ edition.
 - OpenFOAM Foundation - `ghcr.io/kktse/cfdof-openfoam:foundation`
 - OpenCFD/ESI - `ghcr.io/kktse/cfdof-openfoam:opencfd`
 
+OpenCFD versioned tags and the `opencfd` alias support `linux/amd64` and
+`linux/arm64`. Foundation images support `linux/amd64` only.
+
 To use the pre-built images with CfdOF pull the latest image from GHCR.
 
 ```bash
@@ -66,8 +69,9 @@ to `1`. The parallel cfMesh path can fail during reconstruction with
 
 Maintainers can also use the manual GitHub Actions workflow trigger to build a
 one-off Foundation or OpenCFD image by supplying the desired version, base image
-and runtime user. Manual builds always publish the versioned tag and can
-optionally move the edition alias tag.
+and matching edition-specific Dockerfile. Manual OpenCFD builds require a base
+image supporting both `linux/amd64` and `linux/arm64`. Manual builds always
+publish the versioned tag and can optionally move the edition alias tag.
 
 In FreeCAD, navigate to the CfdOF preferences page by navigating to Edit >
 Preferences > CfdOf. In the Software dependencies > Docker Container section,
